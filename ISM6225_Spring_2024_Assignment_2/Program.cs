@@ -1,5 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Xml.Linq;
+using static System.Formats.Asn1.AsnWriter;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Assignment_2
 {
@@ -28,7 +34,7 @@ namespace Assignment_2
 
             // Question 4: Find Maximum Product of Three Numbers
             Console.WriteLine("Question 4:");
-            int[] nums4 = { 1, 2, 3, 4 };
+            int[] nums4 = { 1, 2, 3 };
             int maxProduct = MaximumProduct(nums4);
             Console.WriteLine(maxProduct);
 
@@ -63,7 +69,30 @@ namespace Assignment_2
             try
             {
                 // Write your code here
-                return new List<int>(); // Placeholder
+                int n = nums.Length;
+                bool[] seen = new bool[n + 1];
+                IList<int> missingNumbers = new List<int>();
+
+                // Mark numbers that are present in the array by setting the corresponding index in the 'seen' array to true.
+                for (int i = 0; i < n; i++)
+                {
+                    if (nums[i] >= 1 && nums[i] <= n)
+                    {
+                        seen[nums[i]] = true;
+                    }
+                }
+
+                // Loop through the range of numbers from 1 to n, adding missing numbers to the 'missingNumbers' list.
+                for (int i = 1; i <= n; i++)
+                {
+                    if (!seen[i])
+                    {
+                        missingNumbers.Add(i);
+                    }
+                }
+
+                // Return the list of missing numbers that were not found in the original array.
+                return missingNumbers;
             }
             catch (Exception)
             {
@@ -77,7 +106,29 @@ namespace Assignment_2
             try
             {
                 // Write your code here
-                return new int[0]; // Placeholder
+                int[] result = new int[nums.Length];
+                int index = 0;
+
+                // Iterate through the array and add all even numbers to the 'result' array in order.
+                foreach (int num in nums)
+                {
+                    if (num % 2 == 0)
+                    {
+                        result[index++] = num;
+                    }
+                }
+
+                // Iterate through the array again, this time adding all odd numbers to the 'result' array after the evens.
+                foreach (int num in nums)
+                {
+                    if (num % 2 != 0)
+                    {
+                        result[index++] = num;
+                    }
+                }
+
+                // Return the modified array where even numbers come first, followed by odd numbers.
+                return result;
             }
             catch (Exception)
             {
@@ -91,7 +142,26 @@ namespace Assignment_2
             try
             {
                 // Write your code here
-                return new int[0]; // Placeholder
+
+                //Using dictionary/hash map to reduce the time complexity to O(n).
+                Dictionary<int, int> valueIndexMap = new Dictionary<int, int>();
+
+                // For each element in the array, check if its complement(target - current value) exists in the dictionary. 
+                // If found, return the indices of the two numbers.
+                for (int i = 0; i < nums.Length; i++)
+                {
+                    int requiredValue = target - nums[i];
+
+                    if (valueIndexMap.ContainsKey(requiredValue))
+                    {
+                        return new int[] { valueIndexMap[requiredValue], i };
+                    }
+
+                    //If the complement is not found, store the current value and its index in the dictionary.
+                    valueIndexMap[nums[i]] = i;
+                }
+
+                return new int[0]; // Return empty array if no solution is found
             }
             catch (Exception)
             {
@@ -105,7 +175,11 @@ namespace Assignment_2
             try
             {
                 // Write your code here
-                return 0; // Placeholder
+                Array.Sort(nums);//sort in ascending order
+                int n = nums.Length;
+                int product1 = nums[n - 1] * nums[n - 2] * nums[n - 3]; // Product of three largest
+                int product2 = nums[0] * nums[1] * nums[n - 1]; // Product of two smallest and the largest
+                return Math.Max(product1, product2); // Return maximum of the two products
             }
             catch (Exception)
             {
@@ -119,7 +193,16 @@ namespace Assignment_2
             try
             {
                 // Write your code here
-                return "101010"; // Placeholder
+                if (decimalNumber == 0) return "0"; // edge case for 0 input
+                string binaryResult = string.Empty;
+                while (decimalNumber > 0)
+                {
+                    // concatenate the remainder to the binary result at front
+                    binaryResult = (decimalNumber % 2) + binaryResult;
+                    decimalNumber /= 2; // Divide the number by 2
+                }
+
+                return binaryResult; // Return the final binary string
             }
             catch (Exception)
             {
@@ -132,8 +215,31 @@ namespace Assignment_2
         {
             try
             {
-                // Write your code here
-                return 0; // Placeholder
+                int left = 0;
+                int right = nums.Length - 1;
+                // If the array has only one element and is not rotated, the first element is the smallest
+                if (nums[left] < nums[right])
+                {
+                    return nums[left];
+                }
+                // Binary search for the minimum element
+                while (left < right)
+                {
+                    int mid = left + (right - left) / 2;
+                    // If the mid element is greater than the right element, the minimum is in the right half
+                    if (nums[mid] > nums[right])
+                    {
+                        left = mid + 1;
+                    }
+                    else
+                    {
+                        // Otherwise, the minimum is in the left half (including mid)
+                        right = mid;
+                    }
+                }
+
+                // At the end of the loop, left == right, and it points to the minimum element
+                return nums[left];
             }
             catch (Exception)
             {
@@ -147,7 +253,31 @@ namespace Assignment_2
             try
             {
                 // Write your code here
-                return false; // Placeholder
+
+                // Edge case: Negative numbers are not palindromes
+                if (x < 0) return false;
+
+                string rev = string.Empty;
+
+                // Store the original value of x to compare later
+                int orig  = x;
+
+                // Loop to extract digits from x and build the reversed number
+                while (x > 0)
+                {
+                    int rem = x % 10;
+                    rev = rev + rem;
+                    x = x / 10;
+                }
+
+                // Compare the original number with the reversed version (converted back to an integer)
+                if (orig == int.Parse(rev))
+                {
+                    return true;
+                }
+                else {
+                    return false;
+                }
             }
             catch (Exception)
             {
@@ -161,7 +291,29 @@ namespace Assignment_2
             try
             {
                 // Write your code here
-                return 0; // Placeholder
+
+                // Edge case for n = 0
+                if (n == 0) return 0;
+
+                // Edge case for n = 1
+                if (n == 1) return 1;
+
+                // Initialize the first two Fibonacci numbers
+                int a = 0;
+                int b = 1;
+
+                // Variable to store the Fibonacci number
+                int fib = 0;
+
+                // Iterate from 2 to n, calculating the Fibonacci numbers
+                for (int i = 2; i <= n; i++)
+                {
+                    fib = a + b; 
+                    a = b;        
+                    b = fib;      
+                }
+
+                return fib; // Return the Fibonacci number at position n
             }
             catch (Exception)
             {
